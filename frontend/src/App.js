@@ -1,8 +1,8 @@
-import Footer from "./layout/footer/Footer";
-import Header from "./layout/header/Header";
+import React from "react";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./layout/layout/Layout";
+import SigninPage from "./pages/SigninPage/SigninPage";
 
 function App() {
     return (

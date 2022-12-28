@@ -37,7 +37,18 @@ const isAdmin = (req, res, next) => {
     }
 };
 
+// 3. Check whether if user has activated the account by registering tiktok id
+const isActivated = asyncHandler(async (req, res, next) => {
+    if (req.user.tiktok_id == "") {
+        res.status(401);
+        throw new Error("No tiktok id supplied!");
+    } else {
+        next();
+    }
+});
+
 module.exports = {
     protect,
     isAdmin,
+    isActivated,
 };

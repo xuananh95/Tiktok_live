@@ -1,8 +1,12 @@
 const express = require("express");
-const { protect, isAdmin } = require("../middlewares/authMiddleware");
+const {
+    protect,
+    isAdmin,
+    isActivated,
+} = require("../middlewares/authMiddleware");
 const router = express.Router();
 
-router.get("/", protect, isAdmin, (req, res) => {
+router.get("/", protect, isActivated, (req, res) => {
     res.status(200).json("success!");
 });
 
