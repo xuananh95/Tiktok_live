@@ -3,6 +3,29 @@ const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateJWT");
 
+const registerAdmin = asyncHandler(async (req, res) => {
+    const isAdminExisted = await User.count({});
+    if (isAdminExisted === 0) {
+        const { username, password } = req.body;
+        const newAdminUser = await User.create({
+            username,
+            password,
+            isAdmin: true,
+        });
+        if (newAdminUser) {
+            res.status(200).json({
+                msg: "Success",
+            });
+        } else {
+            res.status(400);
+            throw new Error("Unexpected Error!");
+        }
+    } else {
+        res.status(400);
+        throw new Error("Invalid request");
+    }
+});
+
 const register = asyncHandler(async (req, res) => {
     const { username, password } = req.body;
 
@@ -49,4 +72,4 @@ const login = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { register, login };
+module.exports = { register, login, registerAdmin };

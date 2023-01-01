@@ -1,16 +1,57 @@
 import React from "react";
+
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
+import axios from "axios";
+
 import styled from "styled-components";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SigninPage = () => {
+    const navigate = useNavigate();
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm();
+
+    const onSubmit = async (data) => {
+        try {
+            const response = await axios.post(
+                "http://localhost:5001/auth/login",
+                data
+            );
+            if (response.status === 200) {
+                localStorage.setItem("token", data.token);
+                navigate("/home");
+            }
+        } catch (error) {
+            if (error.response.status === 401) {
+                toast(error.response.data.message);
+            }
+        }
+    };
     return (
         <SFormContainer>
             <h2 id="form-title">Đăng nhập</h2>
-            <form className="d-flex flex-column justify-content-center align-items-center">
+            <form
+                className="d-flex flex-column justify-content-center align-items-center"
+                onSubmit={handleSubmit(onSubmit)}
+            >
                 <div className="mb-4">
                     <label htmlFor="username" className="form-label">
                         Tên đăng nhập
                     </label>
-                    <input type="text" className="form-control" id="username" />
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="username"
+                        {...register("username", { required: true })}
+                    />
                 </div>
                 <div className="mb-4">
                     <label htmlFor="password" className="form-label">
@@ -20,12 +61,14 @@ const SigninPage = () => {
                         type="password"
                         className="form-control"
                         id="password"
+                        {...register("password", { required: true })}
                     />
                 </div>
                 <button type="submit" className="btn btn-primary text-center">
                     Đăng nhập
                 </button>
             </form>
+            <ToastContainer />
         </SFormContainer>
     );
 };
