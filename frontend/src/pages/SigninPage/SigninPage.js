@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const SigninPage = () => {
+const SigninPage = ({ user, setUser }) => {
     const navigate = useNavigate();
 
     const {
@@ -18,20 +18,34 @@ const SigninPage = () => {
         watch,
         formState: { errors },
     } = useForm();
+    useEffect(() => {
+        const authUser = localStorage.getItem("user");
+        if (authUser) {
+            navigate("/home", { replace: true });
+        }
+    }, []);
 
     const onSubmit = async (data) => {
         try {
+            // axios.defaults.withCredentials = true;
             const response = await axios.post(
                 "http://localhost:5001/auth/login",
-                data
+                data,
+                { withCredentials: true }
             );
             if (response.status === 200) {
-                localStorage.setItem("token", data.token);
+                setUser(response.data.user);
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(response.data.user)
+                );
+                toast("Đăng nhập thành công");
+                console.log();
                 navigate("/home");
             }
         } catch (error) {
             if (error.response.status === 401) {
-                toast(error.response.data.message);
+                toast("Sai tên tài khoản hoặc mật khẩu!");
             }
         }
     };

@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateJWT");
+const cookie = require("cookie");
 
 const registerAdmin = asyncHandler(async (req, res) => {
     const isAdminExisted = await User.count({});
@@ -59,12 +60,26 @@ const login = asyncHandler(async (req, res) => {
     }
     const user = await User.findOne({ username });
     if (user && (await bcrypt.compare(password, user.password))) {
-        res.json({
-            _id: user._id,
+        const payload = {
+            id: user._id,
             username: user.username,
             displayName: user.displayName,
             isAdmin: user.isAdmin,
-            token: generateToken(user._id),
+        };
+        const token = generateToken(payload);
+        const serialized = cookie.serialize("token", token, {
+            httpOnly: true,
+            maxAge: 60 * 60 * 24 * 30,
+        });
+        res.setHeader("Set-Cookie", serialized);
+        res.status(200).json({
+            user: {
+                _id: user._id,
+                username: user.username,
+                displayName: user.displayName,
+                // isAdmin: user.isAdmin,
+                token: token,
+            },
         });
     } else {
         res.status(401);
@@ -72,4 +87,8 @@ const login = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { register, login, registerAdmin };
+const checkCookie = (req, res) => {
+    console.log(req.cookie);
+};
+
+module.exports = { register, login, registerAdmin, checkCookie };
