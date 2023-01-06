@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const User = require("../models/userModel");
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -11,14 +12,15 @@ const protect = asyncHandler(async (req, res, next) => {
         try {
             const token = authorization.split(" ")[1];
             const userVerify = jwt.verify(token, JWT_SECRET);
-            const userInfo = await User.findById(userVerify.id).select(
-                "-password"
-            );
+            const userInfo = await User.findById(
+                mongoose.Types.ObjectId(userVerify.id)
+            ).select("-password");
             console.log(userInfo);
             req.user = userInfo;
             next();
         } catch (error) {
             res.status(401);
+            console.log(error);
             throw new Error("Token invalid");
         }
     } else {

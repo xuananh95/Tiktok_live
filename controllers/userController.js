@@ -87,8 +87,11 @@ const login = asyncHandler(async (req, res) => {
     }
 });
 
-const checkCookie = (req, res) => {
-    console.log(req.cookie);
+const getUserInfo = (req, res) => {
+    res.status(200).json({
+        msg: "Success",
+        data: req.user,
+    });
 };
 
-module.exports = { register, login, registerAdmin, checkCookie };
+module.exports = { register, login, registerAdmin, getUserInfo };
