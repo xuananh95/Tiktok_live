@@ -15,17 +15,18 @@ const protect = asyncHandler(async (req, res, next) => {
             const userInfo = await User.findById(
                 mongoose.Types.ObjectId(userVerify.id)
             ).select("-password");
-            console.log(userInfo);
             req.user = userInfo;
             next();
         } catch (error) {
-            res.status(401);
-            console.log(error);
-            throw new Error("Token invalid");
+            // console.log("a");
+            res.status(401).json({
+                msg: "Token invalid",
+            });
         }
     } else {
-        res.status(401);
-        throw new Error("No JWT");
+        res.status(401).json({
+            msg: "No JWT",
+        });
     }
 });
 
@@ -34,16 +35,18 @@ const isAdmin = (req, res, next) => {
     if (req.user && req.user.isAdmin) {
         next();
     } else {
-        res.status(401);
-        throw new Error("No permission");
+        res.status(401).json({
+            msg: "No permission",
+        });
     }
 };
 
 // 3. Check whether if user has activated the account by registering tiktok id
 const isActivated = asyncHandler(async (req, res, next) => {
     if (req.user.tiktok_id == "") {
-        res.status(401);
-        throw new Error("No tiktok id supplied!");
+        res.status(401).json({
+            msg: "No tiktok id supplied!",
+        });
     } else {
         next();
     }

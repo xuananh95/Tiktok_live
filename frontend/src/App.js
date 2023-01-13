@@ -1,37 +1,49 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./layout/layout/Layout";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import SigninPage from "./pages/SigninPage/SigninPage";
 import HomePage from "./pages/HomePage/HomePage";
-import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+// import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+import AuthState from "./contexts/AuthContext/authState";
+import CreateAccountPage from "./pages/CreateAccountPage/CreateAccountPage";
+import ChangePasswordPage from "./pages/ChangePasswordPage/ChangePasswordPage";
+
+// toast
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-    const [user, setUser] = useState(null);
-    console.log(user);
     return (
         <div className="App">
             <BrowserRouter>
-                <Layout>
-                    <Routes>
-                        <Route path="/" element={<LandingPage />} />
-                        <Route
-                            path="/signin"
-                            element={
-                                <SigninPage user={user} setUser={setUser} />
-                            }
-                        />
-                        <Route
-                            path="/home"
-                            element={
-                                // <PrivateRoute user={user}>
-                                <HomePage />
-                                // </PrivateRoute>
-                            }
-                        />
-                    </Routes>
-                </Layout>
+                <AuthState>
+                    <Layout>
+                        <Routes>
+                            <Route path="/" element={<LandingPage />} />
+                            <Route path="/signin" element={<SigninPage />} />
+                            <Route
+                                path="/home"
+                                element={
+                                    // <PrivateRoute user={user}>
+                                    <HomePage />
+                                    // </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="/create-account"
+                                element={<CreateAccountPage />}
+                            />
+                            <Route
+                                path="/change-password"
+                                element={<ChangePasswordPage />}
+                            />
+                        </Routes>
+
+                        <ToastContainer />
+                    </Layout>
+                </AuthState>
             </BrowserRouter>
         </div>
     );

@@ -1,49 +1,36 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import axios from "axios";
-
 import styled from "styled-components";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import AuthServices from "../../services/authServices";
 
-const SigninPage = ({ user, setUser }) => {
+import { LOGIN } from "../../contexts/types";
+import authContext from "../../contexts/AuthContext/authContexts";
+import { toast } from "react-toastify";
+
+const SigninPage = () => {
     const navigate = useNavigate();
-
-    const {
-        register,
-        handleSubmit,
-        watch,
-        formState: { errors },
-    } = useForm();
+    const { state, dispatch } = useContext(authContext);
+    const { register, handleSubmit } = useForm();
     useEffect(() => {
-        const authUser = localStorage.getItem("user");
-        if (authUser) {
+        if (state.isAuthenticated) {
             navigate("/home", { replace: true });
         }
     }, []);
 
     const onSubmit = async (data) => {
         try {
-            // axios.defaults.withCredentials = true;
-            const response = await axios.post(
-                "http://localhost:5001/auth/login",
-                data,
-                { withCredentials: true }
-            );
-            if (response.status === 200) {
-                setUser(response.data.user);
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(response.data.user)
-                );
-                toast("Đăng nhập thành công");
-                console.log();
-                navigate("/home");
-            }
+            const response = await AuthServices.login(data);
+            const action = {
+                type: LOGIN,
+                payload: response.data,
+            };
+            dispatch(action);
+            navigate("/home");
         } catch (error) {
+            console.log(error);
             if (error.response.status === 401) {
                 toast("Sai tên tài khoản hoặc mật khẩu!");
             }
@@ -82,7 +69,6 @@ const SigninPage = ({ user, setUser }) => {
                     Đăng nhập
                 </button>
             </form>
-            <ToastContainer />
         </SFormContainer>
     );
 };

@@ -1,28 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import authContext from "../../contexts/AuthContext/authContexts";
+import { LOGOUT } from "../../contexts/types";
+import { Link } from "react-router-dom";
 
 const Header = () => {
+    const { state, dispatch } = useContext(authContext);
     const navigate = useNavigate();
-    const [currentUser, setCurrentUser] = useState(null);
-    useEffect(() => {
-        if (
-            localStorage.getItem("user") &&
-            localStorage.getItem("user") !== ""
-        ) {
-            setCurrentUser(localStorage.getItem("user"));
-        }
-    }, []);
+    const { isAuthenticated, user } = state;
     const handleLogin = () => {
         navigate("/signin", { replace: true });
     };
-    const handleLogout = () => {};
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        const action = {
+            type: LOGOUT,
+        };
+        dispatch(action);
+        navigate("/", { replace: true });
+    };
+    // useEffect(() => {
+    //     if (!state.user) {
+    //         fetchUserInformation();
+    //     }
+    // }, []);
     return (
         <div>
             <nav className="navbar navbar-expand-lg bg-body-tertiary ">
                 <div className="container-fluid">
-                    <a className="navbar-brand" href="/">
+                    <Link className="navbar-brand" to="/">
                         Tiktok Live
-                    </a>
+                    </Link>
                     <button
                         className="navbar-toggler"
                         type="button"
@@ -37,21 +45,44 @@ const Header = () => {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <a
+                                <Link
                                     className="nav-link active"
                                     aria-current="page"
-                                    href="/home"
+                                    to="/home"
                                 >
                                     Dashboard
-                                </a>
+                                </Link>
                             </li>
+                            {user && (
+                                <li className="nav-item">
+                                    <Link
+                                        className="nav-link active"
+                                        aria-current="page"
+                                        to="/change-password"
+                                    >
+                                        Đổi mật khẩu
+                                    </Link>
+                                </li>
+                            )}
+                            {user?.isAdmin && (
+                                <li className="nav-item">
+                                    <Link
+                                        className="nav-link active"
+                                        aria-current="page"
+                                        to="/create-account"
+                                    >
+                                        Tạo tài khoản
+                                    </Link>
+                                </li>
+                            )}
                         </ul>
                     </div>
+
                     <div className="me-2">
-                        {!currentUser ? (
+                        {!isAuthenticated ? (
                             <button
                                 type="button"
-                                class="btn btn-primary"
+                                className="btn btn-primary"
                                 onClick={handleLogin}
                             >
                                 Đăng nhập
@@ -59,7 +90,7 @@ const Header = () => {
                         ) : (
                             <button
                                 type="button"
-                                class="btn btn-danger"
+                                className="btn btn-danger"
                                 onClick={handleLogout}
                             >
                                 Đăng xuất
